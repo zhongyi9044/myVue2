@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div id="app" style="color: red; background: yellow">
+      <div style="color: red">
+        <li key="a">{{name}}</li>
+        <li key="b">{{age}}</li>
+        <li key="c">{{obj.phone}}</li>
+        <li key="d">{{obj.address}}</li>
+        <span>{{arr}}</span>
+      </div>
+      <my-button key="s" style="color: red; background: yellow"></my-button>
+      <h1>{{fuilname}},{{fuilname}}</h1>
+      <h2>22 11</h2>
+    </div>
+
+    <div id="root"></div>
+    <script src="vue.js"></script>
+    <script>
+      Vue.component('my-button', {
+        template: '<button>全局点我</button>',
+      })
+      Vue.mixin({
+        created() {
+          console.log('1')
+        },
+        a: 1,
+      })
+      Vue.mixin({
+        created() {
+          console.log('2')
+        },
+        a: 3,
+        b: 4,
+      })
+      const vm = new Vue({
+        //响应式：数据变化可以监控到
+        data() {
+          //代理数据
+          return {
+            name: 'zy',
+            age: 21,
+            obj: {
+              phone: 123,
+              address: 321,
+              obj2: {
+                height: 175,
+                weigth: 75,
+              },
+            },
+            arr: [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              { a: 7, b: 8, c: 9 },
+              [10, 11, 12, 13, 14, 15],
+            ],
+          }
+        },
+        created() {
+          console.log('3')
+        },
+        computed: {
+          // fuilname(){
+          //   console.log(this)
+          //   return this.name+this.age
+          // }
+          fuilname: {
+            get() {
+              console.log(this)
+              return this.name + this.age
+            },
+            set(newValue) {
+              this.name = newValue
+              this.age = newValue
+            },
+          },
+        },
+        watch: {
+          name(newValue, oldValue) {
+            console.log(newValue, oldValue)
+          },
+        },
+        el: '#app', //将数据解析到el元素上
+        // rander(){
+        //   return
+        // }
+        // template:'<div>hello</div>'
+        //vue1采用模板引擎，性能太差
+        //之后使用虚拟Dom，数据变化以后比较虚拟Dom，最后更新需要更新的地方
+        //核心是把模板变成js语法
+      })
+      vm.$watch(
+        () => vm.name,
+        (newValue, oldValue) => {
+          console.log(newValue, oldValue)
+        }
+      )
+      setTimeout(() => {
+        vm.name = 200
+        vm.age = 30
+      }, 500)
+
+      let Sub = Vue.extend({
+        template: '<div>sub点我1<my-button></my-button></div>',
+        components: { 'my-button': { template: '<button>sub点我2</button>' } },
+      })
+      new Sub().$mount('#root')
+    </script>
+  </body>
+</html>
+
+<!-- 响应式->ast->render->虚拟dom渲染成真实dom -->
